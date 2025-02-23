@@ -2,11 +2,11 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df = pd.read_parquet("baris.parquet", engine="pyarrow")
+df = pd.read_parquet("arkSoft_DMARC_analysis/baris.parquet", engine="pyarrow")
 df["IpLoc"] = df["IpLoc"].astype("string")
 
 print(df.head())
-# print(df.info())
+print(df.info())
 
 
 ipLocDict = {county: freq for county, freq in df["IpLoc"].value_counts().items()}
@@ -60,5 +60,25 @@ plt.title("IP Adresleri ve Toplam Volume Isı Haritası 2000 den büyük veriler
 plt.xlabel("Toplam Volume", labelpad=10)
 plt.xticks(rotation=45, fontsize=20)
 plt.yticks(rotation=45, fontsize=20)
+plt.show()
 
+target_col = "IsSpam"
+selected_cols = [
+    "DMARCValidation",
+    "SPFAuthentication",
+    "SPFAlignment",
+    "DKIMAuthentication",
+    "DKIMAlignment",
+]
+
+correlations = df[[target_col] + selected_cols].corr()[target_col].drop(target_col)
+
+
+print(f"'{target_col}' kolonunun seçili kolonlarla korelasyonu:")
+print(correlations)
+
+# Korelasyonları görselleştir
+plt.figure(figsize=(12, 10))
+sns.heatmap(correlations.to_frame(), annot=True, cmap="coolwarm", fmt=".2f")
+plt.title(f"'{target_col}' Kolonunun Seçili Kolonlarla Korelasyonu")
 plt.show()
