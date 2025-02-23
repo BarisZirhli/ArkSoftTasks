@@ -2,7 +2,10 @@ import pandas as pd
 import chardet
 import numpy as np
 import requests
+import dotenv
+import os
 
+dotenv.load_dotenv()
 result = ""
 with open("datas.csv", "rb") as f:
     result = chardet.detect(f.read(100000))
@@ -123,9 +126,8 @@ def getCountryFromIP(ip_address: str) -> str:
         print(f"Fetching country for IP: {ip_address}")
         headers = {"Accept-Encoding": "identity"}
         response = requests.get(
-            f"http://ipinfo.io/{ip_address}?token=8fbc2974937ebd",
+            f"http://ipinfo.io/{ip_address}?{os.getenv("token")}",
             timeout=5,
-            headers=headers,
         )
 
         if response.status_code == 200:

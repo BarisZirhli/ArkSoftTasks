@@ -1,8 +1,12 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.linear_model import LogisticRegression
 
-df = pd.read_parquet("arkSoft_DMARC_analysis/baris.parquet", engine="pyarrow")
+df = pd.read_parquet("baris.parquet", engine="pyarrow")
 df["IpLoc"] = df["IpLoc"].astype("string")
 
 print(df.head())
@@ -11,7 +15,7 @@ print(df.info())
 
 ipLocDict = {county: freq for county, freq in df["IpLoc"].value_counts().items()}
 output = "\n".join(f"{str(k).upper()} : {v}" for k, v in ipLocDict.items())
-# print(output)
+print(output)
 
 
 policyPublishedDict = {
@@ -22,23 +26,23 @@ output = "\n".join(
     for k, v in policyPublishedDict.items()
 )
 
-# print(output)
+print(output)
 
 ipDict = {IPOwner: freq for IPOwner, freq in df["IPOwner"].value_counts().items()}
 output = "\n".join(f"{str(k).upper()} : {v}" for k, v in ipDict.items())
-# print(output)
+print(output)
 
 df_ip_volume = (
     df.groupby(["IpLoc"], as_index=False)["Volume"]
     .sum()
     .sort_values(by="Volume", ascending=False)
 )
-# print(f"Total volume of traffic {df["Volume"].sum()}")
+print(f"Total volume of traffic {df["Volume"].sum()}")
 
 print(df_ip_volume)
 df_ip_volume = df_ip_volume[df_ip_volume["Volume"] > 2000]
 
-# Toplam trafik hacmini yazdır
+
 print(f"Total volume of traffic: {df['Volume'].sum()}")
 
 
@@ -77,8 +81,46 @@ correlations = df[[target_col] + selected_cols].corr()[target_col].drop(target_c
 print(f"'{target_col}' kolonunun seçili kolonlarla korelasyonu:")
 print(correlations)
 
-# Korelasyonları görselleştir
+
 plt.figure(figsize=(12, 10))
 sns.heatmap(correlations.to_frame(), annot=True, cmap="coolwarm", fmt=".2f")
 plt.title(f"'{target_col}' Kolonunun Seçili Kolonlarla Korelasyonu")
 plt.show()
+
+
+selected_columns = [
+    "Volume",
+    "PolicyDispositionValue",
+    "HeuristicResultType",
+    "DMARCValidation",
+    "SPFAuthentication",
+    "SPFAlignment",
+    "DKIMAuthentication",
+    "DKIMAlignment",
+    "IsEnabled",
+    "IsDeleted",
+]
+X = df[selected_columns]
+Y = df["IsSpam"]
+
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, Y, test_size=0.2, random_state=42, stratify=Y
+)
+
+model = RandomForestClassifier(
+    n_estimators=50,
+    max_depth=7,
+    min_samples_split=10,
+    random_state=42,
+)
+
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Model Doğruluk Oranı: {accuracy:.4f}")
+
+print("\nSınıflandırma Raporu:")
+print(classification_report(y_test, y_pred))
