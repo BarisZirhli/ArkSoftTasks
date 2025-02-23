@@ -38,3 +38,4 @@ def detect_file_encoding(file):
 
 
 detect_file_encoding("datas.csv")
+ 
