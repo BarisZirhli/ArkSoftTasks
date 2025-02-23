@@ -154,5 +154,5 @@ df["IsSpam"] = df.apply(spamScore, axis=1)
 print(df["IsSpam"].value_counts())
 print(df.head())
 
-df.to_csv("baris.csv", index=False)
-df.to_parquet("baris.parquet", engine="pyarrow", index=False)
+df.to_csv("DMARC.csv", index=False)
+df.to_parquet("DMARC.parquet", engine="pyarrow", index=False)
