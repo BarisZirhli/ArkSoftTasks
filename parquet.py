@@ -29,7 +29,7 @@ print(output)
 total_count = len(df["PolicyPublishedP"])
 sorted_policies = dict(sorted(policyPublishedDict.items(), reverse=False))
 
-plt.figure(figsize=(12, 10))
+plt.figure(figsize=(12, 14))
 sns.barplot(
     x=list(sorted_policies.keys()),
     y=[(freq / total_count) * 100 for freq in sorted_policies.values()],
@@ -46,6 +46,21 @@ plt.show()
 ipDict = {IPOwner: freq for IPOwner, freq in df["IPOwner"].value_counts().items()}
 output = "\n".join(f"{str(k).upper()} : {v}" for k, v in ipDict.items())
 print(output)
+
+ip_owner_counts = df["IPOwner"].value_counts()
+high_freq_owners = ip_owner_counts[ip_owner_counts > 50000].index
+df_IPOwner = df[df["IPOwner"].isin(high_freq_owners)]
+ip_counts_filtered = df_IPOwner["IPOwner"].value_counts()
+
+plt.figure(figsize=(12, 10))
+sns.barplot(x=ip_counts_filtered.index, y=ip_counts_filtered.values, palette="viridis")
+
+plt.xticks(rotation=45)
+plt.xlabel("IP Owner")
+plt.ylabel("Count")
+plt.title("More than 50000 Repeat IPOwner Values")
+plt.show()
+
 
 df_ip_volume = (
     df.groupby(["IpLoc"], as_index=False)["Volume"]
@@ -94,7 +109,12 @@ print(f"'{target_col}' kolonunun seçili kolonlarla korelasyonu:")
 print(correlations)
 
 plt.figure(figsize=(12, 10))
-sns.heatmap(correlations.to_frame(), annot=True, cmap="coolwarm", fmt=".2f")
+sns.heatmap(
+    correlations.sort_values(ascending=False).to_frame(),
+    annot=True,
+    cmap="coolwarm",
+    fmt=".2f",
+)
 plt.title(f"'{target_col}' Selected collums  correalation other collums ")
 plt.show()
 
