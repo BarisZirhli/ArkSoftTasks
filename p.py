@@ -77,7 +77,7 @@ correlations = df[[target_col] + selected_cols].corr()[target_col].drop(target_c
 print(f"'{target_col}' kolonunun seçili kolonlarla korelasyonu:")
 print(correlations)
 
-# Korelasyonları görselleştir
+
 plt.figure(figsize=(12, 10))
 sns.heatmap(correlations.to_frame(), annot=True, cmap="coolwarm", fmt=".2f")
 plt.title(f"'{target_col}' Kolonunun Seçili Kolonlarla Korelasyonu")
