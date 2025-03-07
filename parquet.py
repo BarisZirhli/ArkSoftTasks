@@ -5,18 +5,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
+
+# Reading file
+
 df = pd.read_parquet("DMARC.parquet", engine="pyarrow")
 df["IpLoc"] = df["IpLoc"].astype("string")
 
-print(df.head())
-print(df.info())
+# print(df.head())
+# print(df.info())
 
 
+# IP based location declaration
 ipLocDict = {county: freq for county, freq in df["IpLoc"].value_counts().items()}
 output = "\n".join(f"{str(k).upper()} : {v}" for k, v in ipLocDict.items())
-print(output)
+# print(output)
 
-
+# Percentage of Mail Policy Compliance
 policyPublishedDict = {
     policy: freq for policy, freq in df["PolicyPublishedP"].value_counts().items()
 }
@@ -25,7 +29,7 @@ output = "\n".join(
     for k, v in policyPublishedDict.items()
 )
 
-print(output)
+# print(output)
 total_count = len(df["PolicyPublishedP"])
 sorted_policies = dict(sorted(policyPublishedDict.items(), reverse=False))
 
@@ -40,12 +44,12 @@ plt.title("Policy Published Frequency Distribution", fontsize=14)
 plt.xlabel("Policy Published P", fontsize=12)
 plt.ylabel("Percentation", fontsize=12)
 plt.xticks(rotation=45)
-plt.show()
+# plt.show()
 
-
+# IP Owner number
 ipDict = {IPOwner: freq for IPOwner, freq in df["IPOwner"].value_counts().items()}
 output = "\n".join(f"{str(k).upper()} : {v}" for k, v in ipDict.items())
-print(output)
+# print(output)
 
 ip_owner_counts = df["IPOwner"].value_counts()
 high_freq_owners = ip_owner_counts[ip_owner_counts > 50000].index
@@ -59,9 +63,10 @@ plt.xticks(rotation=45)
 plt.xlabel("IP Owner")
 plt.ylabel("Count")
 plt.title("More than 50000 Repeat IPOwner Values")
-plt.show()
+# plt.show()
 
 
+# Volume intensity per Location
 df_ip_volume = (
     df.groupby(["IpLoc"], as_index=False)["Volume"]
     .sum()
@@ -93,7 +98,7 @@ plt.title("IP Adresses and Total Volume heatmap contains bigger than 2000")
 plt.xlabel("Total Volume", labelpad=10)
 plt.xticks(rotation=45, fontsize=20)
 plt.yticks(rotation=45, fontsize=20)
-plt.show()
+# plt.show()
 
 target_col = "IsSpam"
 selected_cols = [
@@ -104,6 +109,7 @@ selected_cols = [
     "DKIMAlignment",
 ]
 
+# Spam correlation with target collum
 correlations = df[[target_col] + selected_cols].corr()[target_col].drop(target_col)
 print(f"'{target_col}' kolonunun seçili kolonlarla korelasyonu:")
 print(correlations)
@@ -116,20 +122,18 @@ sns.heatmap(
     fmt=".2f",
 )
 plt.title(f"'{target_col}' Selected collums  correalation other collums ")
-plt.show()
+# plt.show()
 
+
+# E-mail Spoofing detection with ML application(RFC)
 selected_columns = [
-    "Volume",
+    "SPFAuthentication",
+    "DKIMAuthentication",
+    "DMARCValidation",
     "PolicyDispositionValue",
     "HeuristicResultType",
-    "DMARCValidation",
-    "SPFAuthentication",
-    "SPFAlignment",
-    "DKIMAuthentication",
-    "DKIMAlignment",
-    "IsEnabled",
-    "IsDeleted",
 ]
+
 X = df[selected_columns]
 Y = df["IsSpam"]
 
@@ -138,17 +142,29 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, Y, test_size=0.2, random_state=42, stratify=Y
 )
 
-model = RandomForestClassifier(
-    n_estimators=50,
-    max_depth=7,
-    min_samples_split=10,
-    random_state=42,
-)
-
+model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
 
-print(f"Model Doğruluk Oranı: {accuracy:.4f}")
-print("\nSınıflandırma Raporu:")
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Model Accurancy Ratio: {accuracy:.4f}")
+print("\nClassification Ratio:")
 print(classification_report(y_test, y_pred))
+
+new_email = pd.DataFrame(
+    [[0, 1, 1, 2, 3], [1, 0, 1, 2, 2]],
+    columns=[
+        "SPFAuthentication",
+        "DKIMAuthentication",
+        "DMARCValidation",
+        "PolicyDispositionValue",
+        "HeuristicResultType",
+    ],
+)
+
+prediction = model.predict(new_email)[0]
+
+if prediction == 1:
+    print("This e-mail might be SPAM/SPOOFING!")
+else:
+    print("This e-mail seems secured.")
