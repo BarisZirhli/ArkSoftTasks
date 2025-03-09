@@ -128,6 +128,7 @@ def getCountryFromIP(ip_address: str) -> str:
         response = requests.get(
             f"http://ipinfo.io/{ip_address}?{os.getenv("token")}",
             timeout=5,
+            headers=headers,
         )
 
         if response.status_code == 200:

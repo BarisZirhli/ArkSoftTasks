@@ -1,19 +1,30 @@
+import os
+import joblib
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score, classification_report
 
-
-# Reading file
+# Read file
 
 df = pd.read_parquet("DMARC.parquet", engine="pyarrow")
 df["IpLoc"] = df["IpLoc"].astype("string")
 
 # print(df.head())
 # print(df.info())
+"""
+print(df.isna().any().any())
+print(df.isna().sum())
+print(len(df["IsSpam"]))
+print(df.shape)
 
+"""
 
 # IP based location declaration
 ipLocDict = {county: freq for county, freq in df["IpLoc"].value_counts().items()}
@@ -124,47 +135,58 @@ sns.heatmap(
 plt.title(f"'{target_col}' Selected collums  correalation other collums ")
 # plt.show()
 
+# ML application using LogisticRegretion
 
-# E-mail Spoofing detection with ML application(RFC)
+
+# For Spoofing detected likely useful collums
 selected_columns = [
     "SPFAuthentication",
     "DKIMAuthentication",
     "DMARCValidation",
-    "PolicyDispositionValue",
-    "HeuristicResultType",
+    "DKIMAlignment",
+    "Volume",
+    "IsSpam",
 ]
 
+# Label encoding Operation if is
+label_encoder = LabelEncoder()
+for col in selected_columns:
+    df[col] = label_encoder.fit_transform(df[col])
+
+y = df[
+    "IsDeleted"
+]  # IsSpam column not proper because this created by selected some collumns
 X = df[selected_columns]
-Y = df["IsSpam"]
 
-
+# Split train and test data
 X_train, X_test, y_train, y_test = train_test_split(
-    X, Y, test_size=0.2, random_state=42, stratify=Y
+    X, y, test_size=0.2, random_state=42, stratify=y
 )
 
-model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+# Create model and train
+logreg = LogisticRegression(class_weight="balanced", max_iter=10000, C=0.1)
+logreg.fit(X_train, y_train)
 
+# Predict witk test data
+y_pred = logreg.predict(X_test)
+
+# Calculate model accurancy currently approximately 0.975
 accuracy = accuracy_score(y_test, y_pred)
-print(f"Model Accurancy Ratio: {accuracy:.4f}")
-print("\nClassification Ratio:")
+print(f"Model Accuracy: {accuracy:.4f}")
+print("Classification Report:")
 print(classification_report(y_test, y_pred))
 
-new_email = pd.DataFrame(
-    [[0, 1, 1, 2, 3], [1, 0, 1, 2, 2]],
-    columns=[
-        "SPFAuthentication",
-        "DKIMAuthentication",
-        "DMARCValidation",
-        "PolicyDispositionValue",
-        "HeuristicResultType",
-    ],
-)
 
-prediction = model.predict(new_email)[0]
+# Extract which is obtained model
+if not os.path.exists("ARKSOFT_DMARC_ANALYSIS.pkl"):
+    joblib.dump(logreg, "ARKSOFT_DMARC_ANALYSIS.pkl")
 
-if prediction == 1:
-    print("This e-mail might be SPAM/SPOOFING!")
-else:
-    print("This e-mail seems secured.")
+cm = confusion_matrix(y_test, y_pred)
+
+for i in range(len(cm)):
+    for j in range(len(cm[i])):
+        print(f"cm[{i}][{j}] = {cm[i][j]}")
+
+# Separates 5 different parts and applies independent model prediction
+cv_scores = cross_val_score(logreg, X, y, cv=5)
+print("Cross-validation scores:", cv_scores)
