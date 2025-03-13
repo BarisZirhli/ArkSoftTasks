@@ -138,7 +138,7 @@ plt.title(f"'{target_col}' Selected collums  correalation other collums ")
 # ML application using LogisticRegretion
 
 
-# For Spoofing detected likely useful collums
+# For Spoofing detection likely useful collums
 selected_columns = [
     "SPFAuthentication",
     "DKIMAuthentication",
@@ -148,7 +148,7 @@ selected_columns = [
     "IsSpam",
 ]
 
-# Label encoding Operation if is
+# Label encoding Operation if any
 label_encoder = LabelEncoder()
 for col in selected_columns:
     df[col] = label_encoder.fit_transform(df[col])
