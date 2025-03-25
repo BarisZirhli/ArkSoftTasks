@@ -1,219 +1,364 @@
+import re
 import torch
+import nltk
 import numpy as np
-import requests
-import json
-import dotenv
-import os
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from email.parser import BytesParser
-from email import policy
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-import re
-import nltk
-from nltk.stem import PorterStemmer
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-dotenv.load_dotenv()
-
-
+# Download NLTK resources
 nltk.download("punkt")
-stemmer = PorterStemmer()
 
 
-
-#English model for sentiment analysis 
-english_model_name = "distilbert-base-uncased"
-tokenizer = AutoTokenizer.from_pretrained(english_model_name)
-model = AutoModelForSequenceClassification.from_pretrained(english_model_name)
-
-# URL safety checker with Google safety with API
-def check_url_with_google_safe_browsing(api_key, url_to_check):
-    api_url = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={api_key}"
-    payload = {
-        "client": {"clientId": "yourcompanyname", "clientVersion": "1.5.2"},
-        "threatInfo": {
-            "threatTypes": [
-                "MALWARE",
-                "SOCIAL_ENGINEERING",
-                "POTENTIALLY_HARMFUL_APPLICATION",
-            ],
-            "platformTypes": ["ANY_PLATFORM"],
-            "threatEntryTypes": ["URL"],
-            "threatEntries": [{"url": url_to_check}],
-        },
-    }
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(api_url, headers=headers, data=json.dumps(payload))
-
-    if response.status_code == 200:
-        result = response.json()
-        if "matches" in result:
-            return 1
-        else:
-            return 0
-    else:
-        return -1
-
-#Phishing Score Calculator
-def calculate_phishing_score(msg, api_key):
-    phishing_score = 0.0
-    attachments = list()
-#Program handles .eml extentioned file in order to review whole mail content.
-    html_content = None
-    if msg.is_multipart():
-        for part in msg.iter_parts():
-            if part.get_content_type() == "text/html":
-                html_content = part.get_payload(decode=True).decode(
-                    part.get_content_charset()
-                )
-            elif part.get_content_disposition() == "attachment":
-                filename = part.get_filename()
-                if filename:
-                    file_content = part.get_payload(decode=True)
-                    attachments.append((filename, file_content))
-    else:
-        if msg.get_content_type() == "text/html":
-            html_content = msg.get_payload(decode=True).decode(
-                msg.get_content_charset()
-            )
-            for part in msg.iter_attachments():
-                filename = part.get_filename()
-                if filename:
-                    file_content = part.get_payload(decode=True)
-                    attachments.append((filename, file_content))
-
-
-    if html_content:
-        soup = BeautifulSoup(html_content, "html.parser")
-#Masked url caused potential risky case attacker might be hidden under the shorten links. These are most popular link shortener services.
-        shorteners = [
-            "bit.ly",
-            "tinyurl.com",
-            "goo.gl",
-            "ow.ly",
-            "buff.ly",
-            "short.io",
-            "bl.ink",
-            "is.gd",
-            "Replug.io",
-            "Cutt.us",
-            "Rebrandly.com",
-            "Wow.link",
-            "Innkin.com",
-            "Goo.su",
-            "T2M",
+# Custom Turkish Stemmer
+class TurkishStemmer:
+    def __init__(self):
+        # Common Turkish suffixes to remove
+        self.suffixes = [
+            # Plural suffixes
+            "ler",
+            "lar",
+            # Case suffixes
+            "de",
+            "da",
+            "te",
+            "ta",
+            "den",
+            "dan",
+            "ten",
+            "tan",
+            "i",
+            "ı",
+            "u",
+            "ü",
+            "yi",
+            "yı",
+            "yu",
+            "yü",
+            "e",
+            "a",
+            "ye",
+            "ya",
+            # Possession suffixes
+            "m",
+            "ım",
+            "im",
+            "um",
+            "ün",
+            "un",
+            "n",
+            "nız",
+            "niz",
+            "nuz",
+            "nüz",
+            # Verb suffixes
+            "mak",
+            "mek",
+            "yor",
+            "di",
+            "dı",
+            "du",
+            "dü",
+            "tı",
+            "ti",
+            "tu",
+            "tü",
         ]
-        links = soup.find_all("a", href=True)
-        if links:
-            for link in links:
-                url = link["href"]
-                if any(shortener in url for shortener in shorteners):
-                    phishing_score += 1.5
 
-                parsed_url = urlparse(url)
-                result = check_url_with_google_safe_browsing(parsed_url, api_key)
-                if result == 1:
-                    phishing_score += 2
-                elif result == -1:
-                    phishing_score += 1
-                else:
-                    phishing_score += 0.5
+    def stem(self, word: str):
 
-        forms = soup.find_all("form")
-        if forms:
-            for form in forms:
-                action = form.get("action")
-                if action and "http" in action:
-                    phishing_score += 1
-                inputs = form.find_all("input")
-                for input_tag in inputs:
-                    input_type = input_tag.get("type", "").lower()
-                    if input_type in ["password", "email", "text", "number", "file"]:
-                        phishing_score += 1
+        word = word.lower().strip(True)
+        # Remove suffixes
+        for suffix in self.suffixes:
+            if word.endswith(suffix):
+                word = word[: -len(suffix)]
+                break
 
-        images = soup.find_all("img")
-        if images:
-            for img in images:
-                src = img.get("src")
-                if src and re.match(r'^data:image/.+;base64,', src):
-                    phishing_score += 1
+        return word
 
-        body = soup.find("body")
-        if body:
-            plain_text = body.get_text(separator=" ").strip()
-            plain_text = re.sub(r"\s+", " ", plain_text).strip()
-            threat_keywords = [
-                "verify",
-                "urgent",
-                "visit",
-                "account",
-                "security",
-                "login",
-                "password",
-                "update",
-                "confirm",
-                "immediately",
-                "suspicious",
-                "alert",
-                "safety",
-                "sensitive",
-                "protected",
-                "risk",
-            ]
-#Used NLTK and stemmer to catch pontential threat words
-            words = nltk.word_tokenize(plain_text)
-            stemmed_words = [stemmer.stem(word.lower()) for word in words]
 
-            for word in stemmed_words:
-                if any(threat_word in word for threat_word in threat_keywords):
-                    phishing_score += 1
-#Sentinal analyis used to catch aggressive suspection statements such as "I love you, call me pls +0121212121212" Or "You acc. has been hacked Hurry up,rush."
-            inputs = tokenizer(
-                plain_text, return_tensors="pt", truncation=True, padding=True
-            )
-            with torch.no_grad():
-                logits = model(**inputs).logits
-            probabilities = torch.softmax(logits, dim=1).numpy()[0]
-            max_index = np.argmax(probabilities)
+models_config = {
+    "turkish": {
+        "model_name": "dbmdz/bert-base-turkish-uncased",
+        "threat_keywords": [
+            "doğrula",
+            "acil",
+            "ziyaret",
+            "hesap",
+            "güvenlik",
+            "giriş",
+            "şifre",
+            "güncelle",
+            "onayla",
+            "hemen",
+            "şüpheli",
+            "uyarı",
+            "emniyet",
+            "hassas",
+            "korunmuş",
+            "risk",
+            "tehlike",
+            "acilen",
+            "derhal",
+            "tehdit",
+            "kredi",
+            "banka",
+            "ödeme",
+            "işlem",
+        ],
+        "sensitive_domains": [
+            r"ibankmobil",
+            r"akbanknet",
+            r"internetsubesi",
+            r"garanti\w*",
+            r"yapikredi",
+            r"halkbankweb",
+            r"finansbank",
+            r"teb\.com",
+            r"ziraat\w*",
+            r"trendyol",
+            r"hepsiburada",
+            r"n11",
+            r"yemeksepeti",
+        ],
+        "stemmer": TurkishStemmer(),
+    }
+}
 
-            confidence = round(probabilities[max_index], 2)
-            if confidence < 0.5:
-                phishing_score += 0.2
-            elif confidence < 0.6:
-                phishing_score += 0.45
-            elif confidence < 0.7:
-                phishing_score += 0.85
-            elif confidence < 0.85:
+
+def load_turkish_model():
+
+    model_config = models_config["turkish"]
+    tokenizer = AutoTokenizer.from_pretrained(model_config["model_name"])
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_config["model_name"]
+    )
+    return tokenizer, model, model_config
+
+
+def analyze_turkish_html_phishing(html_content):
+
+    tokenizer, model, model_config = load_turkish_model()
+
+    phishing_score = 0.0
+    risk_details = {
+        "suspicious_links": [],
+        "suspicious_forms": [],
+        "suspicious_images": [],
+        "threat_keywords": [],
+        "total_score": 0.0,
+    }
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+    shorteners = [
+        "bit.ly",
+        "tinyurl.com",
+        "goo.gl",
+        "ow.ly",
+        "buff.ly",
+        "short.io",
+        "bl.ink",
+        "is.gd",
+        "Replug.io",
+        "Cutt.us",
+        "Rebrandly.com",
+        "Wow.link",
+        "Innkin.com",
+        "Goo.su",
+        "T2M",
+        "kisa.link",
+        "k.url",
+        "ozurl.net",
+        "k.link",
+    ]
+
+    links = soup.find_all("a", href=True)
+    if links:
+        for link in links:
+            url = link["href"]
+
+            if any(shortener in url for shortener in shorteners):
                 phishing_score += 1.5
-            else:
-                phishing_score += 2
+                risk_details["suspicious_links"].append(
+                    {"url": url, "reason": "Kısaltılmış URL"}
+                )
 
-        if any(
-            str(attachment[0]).endswith(ex)
-            for ex in [".exe", ".vbs", ".scr", ".bat"]
-            for attachment in attachments
-        ):
-            phishing_score += 2.5
-            
-        if any(
-            str(attachment[0]).endswith(ex)
-            for ex in [".pdf", ".csv", ".xlsx", ".txt"]
-            for attachment in attachments
-        ):
-            phishing_score += 1.25    
+            parsed_url = urlparse(url)
+            suspicious_patterns = model_config["sensitive_domains"] + [
+                r"login\d*\.",
+                r"verify\d*\.",
+                r"hesap\d*\.",
+                r"secure\d*\.",
+                r"auth\d*\.",
+                r"\.ml$",
+                r"\.ga$",
+                r"\.cf$",
+            ]
 
-    return phishing_score
+            if any(
+                re.search(pattern, parsed_url.netloc, re.IGNORECASE)
+                for pattern in suspicious_patterns
+            ):
+                phishing_score += 1
+                risk_details["suspicious_links"].append(
+                    {"url": url, "reason": "Şüpheli alan adı"}
+                )
+
+    forms = soup.find_all("form")
+    if forms:
+        for form in forms:
+            action = form.get("action")
+            if action and "http" in action:
+                phishing_score += 1
+                risk_details["suspicious_forms"].append(
+                    {"action": action, "reason": "Dış kaynaklı form eylemi"}
+                )
+
+            inputs = form.find_all("input")
+            sensitive_input_types = [
+                "şifre",
+                "parola",
+                "eposta",
+                "hesap",
+                "kredi",
+                "kart",
+                "güvenlik",
+                "email",
+            ]
+            for input_tag in inputs:
+                input_type = input_tag.get("type", "").lower()
+                input_name = input_tag.get("name", "").lower()
+
+                if any(
+                    sens_type in input_type or sens_type in input_name
+                    for sens_type in sensitive_input_types
+                ):
+                    phishing_score += 1.5
+                    risk_details["suspicious_forms"].append(
+                        {"input": input_name, "reason": "Hassas girdi alanı"}
+                    )
+
+    # Check images
+    images = soup.find_all("img")
+    if images:
+        for img in images:
+            src = img.get("src")
+            if src and re.match(r"^data:image/.+;base64,", src):
+                phishing_score += 1
+                risk_details["suspicious_images"].append(
+                    {"src": src, "reason": "Base64 kodlu görsel"}
+                )
+
+            alt_text = img.get("alt", "").lower()
+            if len(alt_text) > 100 or any(
+                keyword in alt_text for keyword in model_config["threat_keywords"]
+            ):
+                phishing_score += 0.5
+                risk_details["suspicious_images"].append(
+                    {"alt": alt_text, "reason": "Şüpheli görsel açıklaması"}
+                )
+
+    # Analyze text content
+    body = soup.find("body")
+    if body:
+        plain_text = body.get_text(separator=" ").strip()
+        plain_text = re.sub(r"\s+", " ", plain_text).strip()
+
+        # Tokenize and stem words
+        words = nltk.word_tokenize(plain_text)
+        stemmed_words = [model_config["stemmer"].stem(word.lower()) for word in words]
+
+        # Check for threat keywords
+        for word in stemmed_words:
+            matching_keywords = [
+                keyword
+                for keyword in model_config["threat_keywords"]
+                if keyword in word
+            ]
+            if matching_keywords:
+                phishing_score += 1
+                risk_details["threat_keywords"].extend(matching_keywords)
+
+        suspicious_text_patterns = [
+            r"\b\d{10,}\b",
+            r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}",
+            r"\+\d{10,}",
+            r"\b(IBAN|TR\d{2})\d{16}\b",
+        ]
+        for pattern in suspicious_text_patterns:
+            if re.search(pattern, plain_text, re.IGNORECASE):
+                phishing_score += 0.5
+
+        inputs = tokenizer(
+            plain_text, return_tensors="pt", truncation=True, padding=True
+        )
+        with torch.no_grad():
+            logits = model(**inputs).logits
+        probabilities = torch.softmax(logits, dim=1).numpy()[0]
+        max_index = np.argmax(probabilities)
+
+        confidence = round(probabilities[max_index], 2)
+        risk_mapping = {
+            (0.0, 0.5): 0.2,
+            (0.5, 0.6): 0.45,
+            (0.6, 0.7): 0.85,
+            (0.7, 0.85): 1.5,
+            (0.85, 1.0): 2.0,
+        }
+
+        for (low, high), score_increment in risk_mapping.items():
+            if low <= confidence < high:
+                phishing_score += score_increment
+                break
+
+    risk_details["total_score"] = phishing_score
+    return risk_details
 
 
-PHISHING_THRESHOLD = 0.7
-api_key = os.getenv("API_KEY")
+def classify_phishing_risk(risk_details):
 
-with open("email/sample-4631.eml", "rb") as file:
-    msg = BytesParser(policy=policy.default).parse(file)
+    score = risk_details["total_score"]
 
-phishing_score = calculate_phishing_score(msg, api_key)
+    if score <= 1:
+        return "Düşük Risk"
+    elif 1 < score <= 2:
+        return "Orta Risk"
+    elif 2 < score <= 3:
+        return "Yüksek Risk"
+    else:
+        return "Çok Yüksek Risk"
 
-print(f"Phishing Score: {phishing_score}")
+
+# Example usage
+def main():
+    turkish_sample = """
+    <html>
+    <body>
+        <a href="http://kisa.link/suspicious-link">Acil: Hesabınızı Doğrulayın</a>
+        <form action="http://fake-banka-giris.com">
+            <input type="password" name="sifre">
+            <input type="email" name="eposta">
+        </form>
+        <img src="data:image/png;base64,somefakebase64data" alt="Güvenlik Uyarısı">
+    </body>
+    </html>
+    """
+
+    risk_details = analyze_turkish_html_phishing(turkish_sample)
+    risk_level = classify_phishing_risk(risk_details)
+
+    print("Phishing Risk Detayları:")
+    print(f"Toplam Risk Skoru: {risk_details['total_score']}")
+    print(f"Risk Seviyesi: {risk_level}")
+
+    # Detaylı risk bilgilerini yazdır
+    for category, risks in risk_details.items():
+        if isinstance(risks, list) and risks:
+            print(f"\n{category.capitalize()}:")
+            for risk in risks:
+                print(f"  - {risk}")
 
 
-#Potential test cases will write soon
+if __name__ == "__main__":
+    main()
