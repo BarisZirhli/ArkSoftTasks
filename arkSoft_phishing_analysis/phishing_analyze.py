@@ -1,144 +1,72 @@
 import re
-import torch
-import nltk
-import numpy as np
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import Levenshtein
+import logging
 
-# Download NLTK resources
-nltk.download("punkt")
+# Set up logging
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
-# Custom Turkish Stemmer
 class TurkishStemmer:
-    def __init__(self):
-        # Common Turkish suffixes to remove
-        self.suffixes = [
-            # Plural suffixes
-            "ler",
-            "lar",
-            # Case suffixes
-            "de",
-            "da",
-            "te",
-            "ta",
-            "den",
-            "dan",
-            "ten",
-            "tan",
-            "i",
-            "ı",
-            "u",
-            "ü",
-            "yi",
-            "yı",
-            "yu",
-            "yü",
-            "e",
-            "a",
-            "ye",
-            "ya",
-            # Possession suffixes
-            "m",
-            "ım",
-            "im",
-            "um",
-            "ün",
-            "un",
-            "n",
-            "nız",
-            "niz",
-            "nuz",
-            "nüz",
-            # Verb suffixes
-            "mak",
-            "mek",
-            "yor",
-            "di",
-            "dı",
-            "du",
-            "dü",
-            "tı",
-            "ti",
-            "tu",
-            "tü",
-        ]
 
-    def stem(self, word: str):
-
-        word = word.lower().strip(True)
-        # Remove suffixes
-        for suffix in self.suffixes:
-            if word.endswith(suffix):
-                word = word[: -len(suffix)]
-                break
-
-        return word
-
-
-models_config = {
-    "turkish": {
-        "model_name": "dbmdz/bert-base-turkish-uncased",
-        "threat_keywords": [
-            "doğrula",
-            "acil",
-            "ziyaret",
-            "hesap",
-            "güvenlik",
-            "giriş",
-            "şifre",
-            "güncelle",
-            "onayla",
-            "hemen",
-            "şüpheli",
-            "uyarı",
-            "emniyet",
-            "hassas",
-            "korunmuş",
-            "risk",
-            "tehlike",
-            "acilen",
-            "derhal",
-            "tehdit",
-            "kredi",
-            "banka",
-            "ödeme",
-            "işlem",
-        ],
-        "sensitive_domains": [
-            r"ibankmobil",
-            r"akbanknet",
-            r"internetsubesi",
-            r"garanti\w*",
-            r"yapikredi",
-            r"halkbankweb",
-            r"finansbank",
-            r"teb\.com",
-            r"ziraat\w*",
-            r"trendyol",
-            r"hepsiburada",
-            r"n11",
-            r"yemeksepeti",
-        ],
-        "stemmer": TurkishStemmer(),
+    models_config = {
+        "turkish": {
+            "threat_keywords": [
+                "doğrula",
+                "acil",
+                "ziyaret",
+                "hesap",
+                "güvenlik",
+                "giriş",
+                "şifre",
+                "güncelle",
+                "onayla",
+                "hemen",
+                "şüpheli",
+                "uyarı",
+                "emniyet",
+                "hassas",
+                "korunmuş",
+                "risk",
+                "tehlike",
+                "acilen",
+                "derhal",
+                "tehdit",
+                "kredi",
+                "banka",
+                "ödeme",
+                "işlem",
+            ],
+            "sensitive_domains": [
+                r"ibankmobil",
+                r"akbanknet",
+                r"internetsubesi",
+                r"garanti\w*",
+                r"yapikredi",
+                r"halkbankweb",
+                r"finansbank",
+                r"teb\.com",
+                r"ziraat\w*",
+                r"trendyol",
+                r"hepsiburada",
+                r"n11",
+                r"yemeksepeti",
+                r"apple",
+            ],
+        }
     }
-}
 
 
 def load_turkish_model():
-
-    model_config = models_config["turkish"]
-    tokenizer = AutoTokenizer.from_pretrained(model_config["model_name"])
-    model = AutoModelForSequenceClassification.from_pretrained(
-        model_config["model_name"]
-    )
-    return tokenizer, model, model_config
+    model_config = TurkishStemmer.models_config["turkish"]
+    return model_config
 
 
 def analyze_turkish_html_phishing(html_content):
-
-    tokenizer, model, model_config = load_turkish_model()
+    model_config = load_turkish_model()
 
     phishing_score = 0.0
     risk_details = {
@@ -174,9 +102,27 @@ def analyze_turkish_html_phishing(html_content):
     ]
 
     links = soup.find_all("a", href=True)
+
     if links:
         for link in links:
             url = link["href"]
+            # only ASCII characters allow
+            new_url = re.sub(r"[^\x00-\x7F]+", "", url)
+            if new_url != url:
+                phishing_score += 2
+            url_domain_pattern = r"^(?:https?://)?(?:www\.)?([^/]+)\.com"
+            match = re.match(url_domain_pattern, url)
+            sensitive_companies = model_config["sensitive_domains"]
+            if match:
+                regex_url = match.group(1)
+                scores = [
+                    Levenshtein.ratio(regex_url, company)
+                    for company in sensitive_companies
+                ]
+                max_score = max(scores)
+
+                if max_score >= 0.60 and max_score < 100:
+                    phishing_score += 3
 
             if any(shortener in url for shortener in shorteners):
                 phishing_score += 1.5
@@ -185,32 +131,27 @@ def analyze_turkish_html_phishing(html_content):
                 )
 
             parsed_url = urlparse(url)
-            suspicious_patterns = model_config["sensitive_domains"] + [
-                r"login\d*\.",
-                r"verify\d*\.",
-                r"hesap\d*\.",
-                r"secure\d*\.",
-                r"auth\d*\.",
-                r"\.ml$",
-                r"\.ga$",
-                r"\.cf$",
-            ]
+            suspicious_patterns = model_config["sensitive_domains"]
 
             if any(
                 re.search(pattern, parsed_url.netloc, re.IGNORECASE)
                 for pattern in suspicious_patterns
             ):
                 phishing_score += 1
+
                 risk_details["suspicious_links"].append(
                     {"url": url, "reason": "Şüpheli alan adı"}
                 )
 
+    # Check forms
     forms = soup.find_all("form")
+
     if forms:
         for form in forms:
             action = form.get("action")
             if action and "http" in action:
                 phishing_score += 1
+
                 risk_details["suspicious_forms"].append(
                     {"action": action, "reason": "Dış kaynaklı form eylemi"}
                 )
@@ -235,17 +176,20 @@ def analyze_turkish_html_phishing(html_content):
                     for sens_type in sensitive_input_types
                 ):
                     phishing_score += 1.5
+
                     risk_details["suspicious_forms"].append(
                         {"input": input_name, "reason": "Hassas girdi alanı"}
                     )
 
     # Check images
     images = soup.find_all("img")
+
     if images:
         for img in images:
             src = img.get("src")
             if src and re.match(r"^data:image/.+;base64,", src):
                 phishing_score += 1
+
                 risk_details["suspicious_images"].append(
                     {"src": src, "reason": "Base64 kodlu görsel"}
                 )
@@ -255,22 +199,19 @@ def analyze_turkish_html_phishing(html_content):
                 keyword in alt_text for keyword in model_config["threat_keywords"]
             ):
                 phishing_score += 0.5
+
                 risk_details["suspicious_images"].append(
                     {"alt": alt_text, "reason": "Şüpheli görsel açıklaması"}
                 )
 
-    # Analyze text content
+    # Analyze body text
     body = soup.find("body")
     if body:
         plain_text = body.get_text(separator=" ").strip()
         plain_text = re.sub(r"\s+", " ", plain_text).strip()
+        words = plain_text.split()
 
-        # Tokenize and stem words
-        words = nltk.word_tokenize(plain_text)
-        stemmed_words = [model_config["stemmer"].stem(word.lower()) for word in words]
-
-        # Check for threat keywords
-        for word in stemmed_words:
+        for word in words:
             matching_keywords = [
                 keyword
                 for keyword in model_config["threat_keywords"]
@@ -278,6 +219,7 @@ def analyze_turkish_html_phishing(html_content):
             ]
             if matching_keywords:
                 phishing_score += 1
+
                 risk_details["threat_keywords"].extend(matching_keywords)
 
         suspicious_text_patterns = [
@@ -290,34 +232,14 @@ def analyze_turkish_html_phishing(html_content):
             if re.search(pattern, plain_text, re.IGNORECASE):
                 phishing_score += 0.5
 
-        inputs = tokenizer(
-            plain_text, return_tensors="pt", truncation=True, padding=True
-        )
-        with torch.no_grad():
-            logits = model(**inputs).logits
-        probabilities = torch.softmax(logits, dim=1).numpy()[0]
-        max_index = np.argmax(probabilities)
-
-        confidence = round(probabilities[max_index], 2)
-        risk_mapping = {
-            (0.0, 0.5): 0.2,
-            (0.5, 0.6): 0.45,
-            (0.6, 0.7): 0.85,
-            (0.7, 0.85): 1.5,
-            (0.85, 1.0): 2.0,
-        }
-
-        for (low, high), score_increment in risk_mapping.items():
-            if low <= confidence < high:
-                phishing_score += score_increment
-                break
+    # Return phishing score and risk details
 
     risk_details["total_score"] = phishing_score
+
     return risk_details
 
 
 def classify_phishing_risk(risk_details):
-
     score = risk_details["total_score"]
 
     if score <= 1:
@@ -330,34 +252,76 @@ def classify_phishing_risk(risk_details):
         return "Çok Yüksek Risk"
 
 
-# Example usage
 def main():
-    turkish_sample = """
-    <html>
+    turkish_sample1 = """
+     <html>
     <body>
-        <a href="http://kisa.link/suspicious-link">Acil: Hesabınızı Doğrulayın</a>
-        <form action="http://fake-banka-giris.com">
-            <input type="password" name="sifre">
-            <input type="email" name="eposta">
-        </form>
-        <img src="data:image/png;base64,somefakebase64data" alt="Güvenlik Uyarısı">
+        <a href="http://garatibank.com">Hesap güvenliğini doğrula</a>
+        <table>
+    <tr>
+        <td>
+            <input type="password" name="parola">
+        </td>
+        
+        <td>
+            <input type="text" name="email">
+        </td>
+    </tr>
+    </table>
+        
+        <img src="http://garatibank.com/logo.png" alt="Garantibank">
     </body>
     </html>
     """
 
-    risk_details = analyze_turkish_html_phishing(turkish_sample)
-    risk_level = classify_phishing_risk(risk_details)
+    turkish_sample2 = """
+     <html>
+    <body>
+        <a href="http:// аpple.com">Hesap güncellemeleri için tıklayınız</a>
+        <table>
+    <tr>
+        <td>
+            <input type="password" name="sifreniz">
+        </td>
+        
+        <td>
+            <input type="text" name="telefon">
+        </td>
+    </tr>
+    </table>
+        
+        <img src="http://hepsiburda.com/logo.png" alt="Hepsiburada">
+    </body>
+    </html>
+    """
 
-    print("Phishing Risk Detayları:")
-    print(f"Toplam Risk Skoru: {risk_details['total_score']}")
-    print(f"Risk Seviyesi: {risk_level}")
+    logging.info("Sample 1:")
+    risk_details1 = analyze_turkish_html_phishing(turkish_sample1)
+    risk_level1 = classify_phishing_risk(risk_details1)
 
-    # Detaylı risk bilgilerini yazdır
-    for category, risks in risk_details.items():
+    logging.info(f"Toplam Risk Skoru: {risk_details1['total_score']}")
+    logging.info(f"Risk Seviyesi: {risk_level1}")
+
+    for category, risks in risk_details1.items():
         if isinstance(risks, list) and risks:
-            print(f"\n{category.capitalize()}:")
+            logging.info(f"\n{category.capitalize()}:")
             for risk in risks:
-                print(f"  - {risk}")
+                logging.info(f"  - {risk}")
+
+    logging.info("\n" + "-" * 40)
+    logging.info("\nSample 2:")
+    risk_details2 = analyze_turkish_html_phishing(turkish_sample2)
+    risk_level2 = classify_phishing_risk(risk_details2)
+
+    logging.info("Phishing Risk Detayları:")
+    logging.info(f"Toplam Risk Skoru: {risk_details2['total_score']}")
+    logging.info(f"Risk Seviyesi: {risk_level2}")
+
+    for category, risks in risk_details2.items():
+        if isinstance(risks, list) and risks:
+            logging.info(f"\n{category.capitalize()}:")
+            for risk in risks:
+                logging.info(f"  - {risk}")
 
 
 if __name__ == "__main__":
