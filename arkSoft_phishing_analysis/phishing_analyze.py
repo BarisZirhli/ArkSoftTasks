@@ -1,16 +1,18 @@
+import datetime
+import whois
 import re
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import Levenshtein
 import logging
+import idna
 
-# Set up logging
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 
-class TurkishStemmer:
+class TurkishDomains:
 
     models_config = {
         "turkish": {
@@ -44,25 +46,29 @@ class TurkishStemmer:
                 r"ibankmobil",
                 r"akbanknet",
                 r"internetsubesi",
-                r"garanti\w*",
+                r"garantibankası",
                 r"yapikredi",
                 r"halkbankweb",
                 r"finansbank",
-                r"teb\.com",
-                r"ziraat\w*",
+                r"teb",
+                r"ziraat",
                 r"trendyol",
                 r"hepsiburada",
                 r"n11",
                 r"yemeksepeti",
                 r"apple",
+                r"amazon",
+                r"wellsfargo",
+                r"bofa",
+                r"jpmorgan",
+                r"tesla",
             ],
         }
     }
 
 
 def load_turkish_model():
-    model_config = TurkishStemmer.models_config["turkish"]
-    return model_config
+    return TurkishDomains.models_config["turkish"]
 
 
 def analyze_turkish_html_phishing(html_content):
@@ -77,8 +83,8 @@ def analyze_turkish_html_phishing(html_content):
         "total_score": 0.0,
     }
 
-    # Parse HTML content
     soup = BeautifulSoup(html_content, "html.parser")
+
     shorteners = [
         "bit.ly",
         "tinyurl.com",
@@ -103,47 +109,58 @@ def analyze_turkish_html_phishing(html_content):
 
     links = soup.find_all("a", href=True)
 
-    if links:
-        for link in links:
+    for link in links:
+        try:
             url = link["href"]
-            # only ASCII characters allow
-            new_url = re.sub(r"[^\x00-\x7F]+", "", url)
-            if new_url != url:
-                phishing_score += 2
-            url_domain_pattern = r"^(?:https?://)?(?:www\.)?([^/]+)\.com"
-            match = re.match(url_domain_pattern, url)
-            sensitive_companies = model_config["sensitive_domains"]
-            if match:
-                regex_url = match.group(1)
-                scores = [
-                    Levenshtein.ratio(regex_url, company)
-                    for company in sensitive_companies
-                ]
-                max_score = max(scores)
-
-                if max_score >= 0.60 and max_score < 100:
-                    phishing_score += 3
-
-            if any(shortener in url for shortener in shorteners):
-                phishing_score += 1.5
-                risk_details["suspicious_links"].append(
-                    {"url": url, "reason": "Kısaltılmış URL"}
-                )
-
             parsed_url = urlparse(url)
-            suspicious_patterns = model_config["sensitive_domains"]
+            domain = parsed_url.netloc
+            punycode_domain = idna.encode(domain).decode()
+            # ASCII value regex shortcut
+            new_url = re.sub(r"[^\x00-\x7F]+", "", url)
 
-            if any(
-                re.search(pattern, parsed_url.netloc, re.IGNORECASE)
-                for pattern in suspicious_patterns
-            ):
-                phishing_score += 1
-
+            if new_url != url or str(punycode_domain).startswith("xn--"):
+                phishing_score += 3
                 risk_details["suspicious_links"].append(
-                    {"url": url, "reason": "Şüpheli alan adı"}
+                    {"url": punycode_domain, "reason": "PunyCode Sahteciliği"}
                 )
+                scores = [
+                    Levenshtein.ratio(domain, company)
+                    for company in model_config["sensitive_domains"]
+                ]
 
-    # Check forms
+                if max(scores) >= 0.60 and max(scores) < 100:
+                    phishing_score += 3
+                    risk_details["suspicious_links"].append(
+                        {"url": punycode_domain, "reason": "Domain Sahteciliği"}
+                    )
+        except Exception as e:
+            logging.error(f"Link has a problem")
+
+        try:
+            domain_info = whois.whois(domain)
+            creation_datetime = domain_info.creation_date
+            if isinstance(creation_datetime, list):
+                creation_datetime = creation_datetime[0]
+
+            years_difference = (datetime.datetime.now() - creation_datetime).days / 365
+            if years_difference < 5:
+                phishing_score += 2
+                risk_details["suspicious_links"].append(
+                    {
+                        "url": punycode_domain,
+                        "reason": "Domain yaşından Domain Sahteciliği",
+                    }
+                )
+        except Exception as e:
+            logging.error(f"Error fetching WHOIS data:")
+
+        # Handle short URLs
+        if any(shortener in url for shortener in shorteners):
+            phishing_score += 2
+            risk_details["suspicious_links"].append(
+                {"url": url, "reason": "Kısaltılmış URL"}
+            )
+
     forms = soup.find_all("form")
 
     if forms:
@@ -181,31 +198,30 @@ def analyze_turkish_html_phishing(html_content):
                         {"input": input_name, "reason": "Hassas girdi alanı"}
                     )
 
-    # Check images
     images = soup.find_all("img")
 
     if images:
         for img in images:
             src = img.get("src")
-            if src and re.match(r"^data:image/.+;base64,", src):
+            if src and (
+                re.match(r"^data:image/.+;base64,", src)
+            ):
                 phishing_score += 1
-
                 risk_details["suspicious_images"].append(
                     {"src": src, "reason": "Base64 kodlu görsel"}
                 )
-
+            #QR maybe
             alt_text = img.get("alt", "").lower()
-            if len(alt_text) > 100 or any(
+            if "scan" in alt_text or any(
                 keyword in alt_text for keyword in model_config["threat_keywords"]
             ):
                 phishing_score += 0.5
-
                 risk_details["suspicious_images"].append(
                     {"alt": alt_text, "reason": "Şüpheli görsel açıklaması"}
                 )
 
-    # Analyze body text
     body = soup.find("body")
+
     if body:
         plain_text = body.get_text(separator=" ").strip()
         plain_text = re.sub(r"\s+", " ", plain_text).strip()
@@ -218,9 +234,14 @@ def analyze_turkish_html_phishing(html_content):
                 if keyword in word
             ]
             if matching_keywords:
-                phishing_score += 1
-
-                risk_details["threat_keywords"].extend(matching_keywords)
+                phishing_score += 0.5
+                risk_details["threat_keywords"].append(
+                    {
+                        "url": punycode_domain,
+                        "threat word": word,
+                        "reason": "şüpheli kelime",
+                    }
+                )
 
         suspicious_text_patterns = [
             r"\b\d{10,}\b",
@@ -232,10 +253,67 @@ def analyze_turkish_html_phishing(html_content):
             if re.search(pattern, plain_text, re.IGNORECASE):
                 phishing_score += 0.5
 
+    table = soup.find("table")
+
+    if table:
+        inputs = table.find_all("input")
+        sensitive_input_types = [
+            "şifre",
+            "parola",
+            "eposta",
+            "hesap",
+            "kredi",
+            "kart",
+            "güvenlik",
+            "email",
+        ]
+        for input in inputs:
+            input_type = input.get("type", "").lower()
+            input_name = input.get("name", "").lower()
+            if any(
+                sens_type in input_type or sens_type in input_name
+                for sens_type in sensitive_input_types
+            ):
+                phishing_score += 1.5
+
+                risk_details["suspicious_forms"].append(
+                    {"input": input_name, "reason": "Hassas girdi alanı"}
+                )
+
+    iframes = soup.find_all("iframe")
+
+    if iframes:
+        for iframe in iframes:
+            iframe_src = iframe.get("src")
+            if iframe_src:
+                if "http" in iframe_src and not any(
+                    domain in iframe_src for domain in model_config["sensitive_domains"]
+                ):
+                    phishing_score += 1
+                    risk_details["suspicious_iframes"].append(
+                        {"src": iframe_src, "reason": "Şüpheli iframe kaynağı"}
+                    )
+
+    scripts = soup.find_all("script")
+
+    if scripts:
+        for script in scripts:
+            script_content = script.get_text()
+            if "fetch" in script_content and "http" in script_content:
+                if not any(
+                    domain in script_content
+                    for domain in model_config["sensitive_domains"]
+                ):
+                    phishing_score += 1
+                    risk_details["suspicious_fetch_requests"].append(
+                        {
+                            "script": script_content,
+                            "reason": "Fetch kullanılarak şüpheli veri gönderimi",
+                        }
+                    )
+
     # Return phishing score and risk details
-
     risk_details["total_score"] = phishing_score
-
     return risk_details
 
 
@@ -243,10 +321,10 @@ def classify_phishing_risk(risk_details):
     score = risk_details["total_score"]
 
     if score <= 1:
-        return "Düşük Risk"
-    elif 1 < score <= 2:
+        return "Çok Düşük Risk"
+    elif 1 < score <= 2.5:
         return "Orta Risk"
-    elif 2 < score <= 3:
+    elif 2.5 < score <= 3.5:
         return "Yüksek Risk"
     else:
         return "Çok Yüksek Risk"
@@ -256,7 +334,7 @@ def main():
     turkish_sample1 = """
      <html>
     <body>
-        <a href="http://garatibank.com">Hesap güvenliğini doğrula</a>
+        <a href="http://garantibank.com">Hesap güvenliğini doğrula</a>
         <table>
     <tr>
         <td>
@@ -269,7 +347,7 @@ def main():
     </tr>
     </table>
         
-        <img src="http://garatibank.com/logo.png" alt="Garantibank">
+        <img src="http://garantibank.com/logo.png" alt="Garantibank">
     </body>
     </html>
     """
@@ -277,7 +355,7 @@ def main():
     turkish_sample2 = """
      <html>
     <body>
-        <a href="http:// аpple.com">Hesap güncellemeleri için tıklayınız</a>
+        <a href="http://аpple.com">Hesap güncellemeleri için tıklayınız</a>
         <table>
     <tr>
         <td>
