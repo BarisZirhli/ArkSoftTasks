@@ -6,6 +6,10 @@ from urllib.parse import urlparse
 import Levenshtein
 import logging
 import idna
+import requests
+import pytesseract
+from PIL import Image
+from io import BytesIO
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -13,6 +17,16 @@ logging.basicConfig(
 
 
 class TurkishDomains:
+
+    global phishing_score
+    risk_details = {
+        "suspicious_links": [],
+        "suspicious_forms": [],
+        "suspicious_images": [],
+        "threat_keywords": [],
+        "suspicious_script": [],
+        "total_score": 0.0,
+    }
 
     models_config = {
         "turkish": {
@@ -71,19 +85,92 @@ def load_turkish_model():
     return TurkishDomains.models_config["turkish"]
 
 
+def is_cdn_photo(url: str):
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.head(url, allow_redirects=True, headers=headers, timeout=5)
+        content_type = response.headers.get("Content-Type", "")
+        return content_type.startswith("image/")
+    except Exception as e:
+        print(f"Error checking URL: {e}")
+        return False
+
+
+def is_image_content(url):
+    try:
+        response = requests.head(url, allow_redirects=True, timeout=5)
+        content_type = response.headers.get("Content-Type", "")
+        return content_type.startswith("image/")
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+def is_image_url(url: str):
+    image_extensions = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff")
+    return url.lower().endswith(image_extensions)
+
+
+def download_image_to_memory(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Eğer HTTP hata kodu dönerse hata verir
+
+        # Image'i belleğe al
+        img_data = BytesIO(response.content)
+        return img_data
+    except requests.exceptions.RequestException as e:
+        print(f"Resim indirme hatası: {e}")
+        return None
+
+
+def perform_ocr_from_memory(image_data):
+
+    try:
+        img = Image.open(image_data)
+        text = pytesseract.image_to_string(img, lang="tur")
+        return text
+    except Exception as e:
+        print(f"Resim işleme hatası: {e}")
+        return None
+
+
+def helper(url: str):
+
+    image_data = download_image_to_memory(url)
+    if image_data:
+        result_text = perform_ocr_from_memory(image_data)
+        if result_text:
+            result_texts = str(result_text).split(" ")
+            parsed_url = urlparse(url)
+            domain = parsed_url.netloc
+            punycode_domain = idna.encode(domain).decode()
+
+            for text_part in result_texts:
+                matching_keywords = [
+                    keyword
+                    for keyword in TurkishDomains.models_config["turkish"][
+                        "threat_keywords"
+                    ]
+                    if keyword in text_part
+                ]
+                if matching_keywords:
+                    TurkishDomains.phishing_score += 0.5
+                    TurkishDomains.risk_details["threat_keywords"].append(
+                        {
+                            "url": punycode_domain,
+                            "threat word": text_part,
+                            "reason": "şüpheli kelime",
+                        }
+                    )
+
+
 def analyze_turkish_html_phishing(html_content):
     model_config = load_turkish_model()
 
-    phishing_score = 0.0
-    risk_details = {
-        "suspicious_links": [],
-        "suspicious_forms": [],
-        "suspicious_images": [],
-        "threat_keywords": [],
-        "total_score": 0.0,
-    }
-
     soup = BeautifulSoup(html_content, "html.parser")
+    TurkishDomains.phishing_score = 0.0
+    phishing_score = 0.0
 
     shorteners = [
         "bit.ly",
@@ -120,7 +207,7 @@ def analyze_turkish_html_phishing(html_content):
 
             if new_url != url or str(punycode_domain).startswith("xn--"):
                 phishing_score += 3
-                risk_details["suspicious_links"].append(
+                TurkishDomains.risk_details["suspicious_links"].append(
                     {"url": punycode_domain, "reason": "PunyCode Sahteciliği"}
                 )
                 scores = [
@@ -130,7 +217,7 @@ def analyze_turkish_html_phishing(html_content):
 
                 if max(scores) >= 0.60 and max(scores) < 100:
                     phishing_score += 3
-                    risk_details["suspicious_links"].append(
+                    TurkishDomains.risk_details["suspicious_links"].append(
                         {"url": punycode_domain, "reason": "Domain Sahteciliği"}
                     )
         except Exception as e:
@@ -145,7 +232,7 @@ def analyze_turkish_html_phishing(html_content):
             years_difference = (datetime.datetime.now() - creation_datetime).days / 365
             if years_difference < 5:
                 phishing_score += 2
-                risk_details["suspicious_links"].append(
+                TurkishDomains.risk_details["suspicious_links"].append(
                     {
                         "url": punycode_domain,
                         "reason": "Domain yaşından Domain Sahteciliği",
@@ -157,9 +244,17 @@ def analyze_turkish_html_phishing(html_content):
         # Handle short URLs
         if any(shortener in url for shortener in shorteners):
             phishing_score += 2
-            risk_details["suspicious_links"].append(
+            TurkishDomains.risk_details["suspicious_links"].append(
                 {"url": url, "reason": "Kısaltılmış URL"}
             )
+            if is_image_url(url):
+                helper(url)
+
+            if is_cdn_photo(url):
+                helper(url)
+
+            if is_image_content(url):
+                helper(url)
 
     forms = soup.find_all("form")
 
@@ -169,7 +264,7 @@ def analyze_turkish_html_phishing(html_content):
             if action and "http" in action:
                 phishing_score += 1
 
-                risk_details["suspicious_forms"].append(
+                TurkishDomains.risk_details["suspicious_forms"].append(
                     {"action": action, "reason": "Dış kaynaklı form eylemi"}
                 )
 
@@ -194,7 +289,7 @@ def analyze_turkish_html_phishing(html_content):
                 ):
                     phishing_score += 1.5
 
-                    risk_details["suspicious_forms"].append(
+                    TurkishDomains.risk_details["suspicious_forms"].append(
                         {"input": input_name, "reason": "Hassas girdi alanı"}
                     )
 
@@ -203,20 +298,18 @@ def analyze_turkish_html_phishing(html_content):
     if images:
         for img in images:
             src = img.get("src")
-            if src and (
-                re.match(r"^data:image/.+;base64,", src)
-            ):
+            if src and (re.match(r"^data:image/.+;base64,", src)):
                 phishing_score += 1
-                risk_details["suspicious_images"].append(
+                TurkishDomains.risk_details["suspicious_images"].append(
                     {"src": src, "reason": "Base64 kodlu görsel"}
                 )
-            #QR maybe
+            # QR maybe
             alt_text = img.get("alt", "").lower()
             if "scan" in alt_text or any(
                 keyword in alt_text for keyword in model_config["threat_keywords"]
             ):
                 phishing_score += 0.5
-                risk_details["suspicious_images"].append(
+                TurkishDomains.risk_details["suspicious_images"].append(
                     {"alt": alt_text, "reason": "Şüpheli görsel açıklaması"}
                 )
 
@@ -235,7 +328,7 @@ def analyze_turkish_html_phishing(html_content):
             ]
             if matching_keywords:
                 phishing_score += 0.5
-                risk_details["threat_keywords"].append(
+                TurkishDomains.risk_details["threat_keywords"].append(
                     {
                         "url": punycode_domain,
                         "threat word": word,
@@ -276,7 +369,7 @@ def analyze_turkish_html_phishing(html_content):
             ):
                 phishing_score += 1.5
 
-                risk_details["suspicious_forms"].append(
+                TurkishDomains.risk_details["suspicious_forms"].append(
                     {"input": input_name, "reason": "Hassas girdi alanı"}
                 )
 
@@ -290,7 +383,7 @@ def analyze_turkish_html_phishing(html_content):
                     domain in iframe_src for domain in model_config["sensitive_domains"]
                 ):
                     phishing_score += 1
-                    risk_details["suspicious_iframes"].append(
+                    TurkishDomains.risk_details["suspicious_iframes"].append(
                         {"src": iframe_src, "reason": "Şüpheli iframe kaynağı"}
                     )
 
@@ -304,17 +397,25 @@ def analyze_turkish_html_phishing(html_content):
                     domain in script_content
                     for domain in model_config["sensitive_domains"]
                 ):
-                    phishing_score += 1
-                    risk_details["suspicious_fetch_requests"].append(
+                    phishing_score += 1.5
+                    TurkishDomains.risk_details["suspicious_fetch_requests"].append(
                         {
                             "script": script_content,
                             "reason": "Fetch kullanılarak şüpheli veri gönderimi",
                         }
                     )
+            if "atob" in script_content:
+                phishing_score += 3
+                TurkishDomains.risk_details["suspicious_script"].append(
+                    {
+                        "scprit": script_content,
+                        "reason": "Atob kullanarak gömülü bir şey çalıştırılmaya çalışılıyor",
+                    }
+                )
 
     # Return phishing score and risk details
-    risk_details["total_score"] = phishing_score
-    return risk_details
+    TurkishDomains.risk_details["total_score"] = phishing_score
+    return TurkishDomains.risk_details
 
 
 def classify_phishing_risk(risk_details):
@@ -331,6 +432,7 @@ def classify_phishing_risk(risk_details):
 
 
 def main():
+
     turkish_sample1 = """
      <html>
     <body>
