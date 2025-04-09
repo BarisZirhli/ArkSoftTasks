@@ -16,6 +16,7 @@ logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+
 class TurkishDomains:
 
     global phishing_score
@@ -304,6 +305,12 @@ def analyze_turkish_html_phishing(html_content):
                     {"src": src, "reason": "Base64 kodlu görsel"}
                 )
             # QR maybe
+
+            base64_data = src[1]
+            decoded_data = base64.b64decode(base64_data).decode("utf-8")
+            if "script" in decoded_data:
+                phishing_score += 3
+
             alt_text = img.get("alt", "").lower()
             if "scan" in alt_text or any(
                 keyword in alt_text for keyword in model_config["threat_keywords"]
