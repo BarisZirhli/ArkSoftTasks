@@ -115,7 +115,7 @@ def is_image_url(url: str):
 def download_image_to_memory(url):
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Eğer HTTP hata kodu dönerse hata verir
+        response.raise_for_status()
 
         # Image'i belleğe al
         img_data = BytesIO(response.content)
