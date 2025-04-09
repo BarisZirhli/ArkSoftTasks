@@ -10,11 +10,11 @@ import requests
 import pytesseract
 from PIL import Image
 from io import BytesIO
+import base64
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
 
 class TurkishDomains:
 
