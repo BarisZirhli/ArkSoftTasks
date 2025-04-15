@@ -12,6 +12,7 @@ from PIL import Image
 from io import BytesIO
 import base64
 
+
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -306,10 +307,15 @@ def analyze_turkish_html_phishing(html_content):
                 )
             # QR maybe
 
-            base64_data = src[1]
-            decoded_data = base64.b64decode(base64_data).decode("utf-8")
-            if "script" in decoded_data:
-                phishing_score += 3
+            if src and src.startswith("data:image/"):
+                try:
+                    # Base64 veriyi virgülden sonra alıyoruz:
+                    base64_data = src.split(",")[1]
+                    decoded_data = base64.b64decode(base64_data).decode("utf-8")
+                    if "script" in decoded_data:
+                        phishing_score += 3
+                except Exception as e:
+                    logging.error(f"Base64 decode hatası: {e}")
 
             alt_text = img.get("alt", "").lower()
             if "scan" in alt_text or any(
@@ -511,5 +517,16 @@ def main():
                 logging.info(f"  - {risk}")
 
 
-if __name__ == "__main__":
-    main()
+
+'''import requests
+
+response = requests.post(
+    "http://localhost:5000/phishing",
+    json={
+        "html_content": "<html><body><a href='http://аpple.com'>Fake Link</a><input type='password'></body></html>"
+    },
+    
+    
+)
+print(response.json())'''
+
