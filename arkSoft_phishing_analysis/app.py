@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 
 @app.route("/phishing", methods=["POST"])
-def phishing_analysis():
+def phishing_analysis_post():
     data = request.get_json()
     print(f"these data:{data}")
     if not data:
