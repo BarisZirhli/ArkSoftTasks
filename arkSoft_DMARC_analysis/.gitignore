@@ -29,3 +29,6 @@ models/
 
 *.c
 *.so
+
+
+*.js
