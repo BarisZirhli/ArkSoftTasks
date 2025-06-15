@@ -1,0 +1,8 @@
+@WriteService_HostAddress = http://localhost:5033
+
+POST {{WriteService_HostAddress}}/api/write
+Content-Type: application/json
+
+{
+  "postContent": "Merhaba Kafka!"
+}

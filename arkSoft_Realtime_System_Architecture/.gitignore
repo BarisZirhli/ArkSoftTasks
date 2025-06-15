@@ -1,39 +1,7 @@
-__pycache__/
-*.py[cod]
-*$py.class
-
-venv/
-.env/
-
-.ipynb_checkpoints/
-
-*.log
-*.sqlite3
-
-.env
-*.env
-*.parquet
-*.h5
-*.pkl
-*.joblib
-*.csv
-*.json
-
-.vscode/
-.idea/
-*.iml
-
-data/
-results/
-models/
-
-*.c
-*.so
-
-
-*.js
-
-
+# Build results
+bin/
+obj/
+out/
 
 # User-specific files
 *.user
