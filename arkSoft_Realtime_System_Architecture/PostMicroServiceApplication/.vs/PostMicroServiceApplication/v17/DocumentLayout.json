@@ -1,58 +1,42 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\",
+  "WorkspaceRootPath": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}|Solution Items{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}|C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}|Solution Items{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}|solutionrelative:docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\readservice\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\writeservice\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|solutionrelative:writeservice\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\readservice\\services\\messagequeueservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\services\\messagequeueservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\readservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\readservice\\controllers\\readcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\controllers\\readcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\readservice\\services\\kafkareadservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\desktop\\arksoft\\arksoft_realtime_system_architecture\\postmicroserviceapplication\\readservice\\services\\kafkareadservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\services\\kafkareadservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\writeservice\\services\\kafkawriteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|solutionrelative:writeservice\\services\\kafkawriteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}|Solution Items{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}|C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}|Solution Items{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}|solutionrelative:docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\readservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\desktop\\arksoft\\arksoft_realtime_system_architecture\\postmicroserviceapplication\\readservice\\services\\messagequeueservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\services\\messagequeueservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\writeservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|c:\\users\\pc\\desktop\\arksoft\\arksoft_realtime_system_architecture\\postmicroserviceapplication\\writeservice\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|solutionrelative:writeservice\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|c:\\users\\pc\\desktop\\arksoft\\arksoft_realtime_system_architecture\\postmicroserviceapplication\\writeservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|solutionrelative:writeservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\writeservice\\controllers\\writecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|solutionrelative:writeservice\\controllers\\writecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\desktop\\arksoft\\arksoft_realtime_system_architecture\\postmicroserviceapplication\\readservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\writeservice\\models\\post.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|solutionrelative:writeservice\\models\\post.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\desktop\\arksoft\\arksoft_realtime_system_architecture\\postmicroserviceapplication\\readservice\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|c:\\users\\pc\\source\\repos\\postmicroserviceapplication\\writeservice\\writeservice.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
-      "RelativeMoniker": "D:0:0:{D3F302A0-E626-43EF-83A9-78E014E0060C}|WriteService\\WriteService.csproj|solutionrelative:writeservice\\writeservice.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\desktop\\arksoft\\arksoft_realtime_system_architecture\\postmicroserviceapplication\\readservice\\controllers\\readcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\controllers\\readcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|c:\\users\\pc\\desktop\\arksoft\\arksoft_realtime_system_architecture\\postmicroserviceapplication\\readservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{E8FE0232-3EF0-45B3-8D6C-E4C7ED87311E}|ReadService\\ReadService.csproj|solutionrelative:readservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -62,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 13,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -98,166 +82,113 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MessageQueueService.cs",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Services\\MessageQueueService.cs",
-              "RelativeDocumentMoniker": "ReadService\\Services\\MessageQueueService.cs",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Services\\MessageQueueService.cs",
-              "RelativeToolTip": "ReadService\\Services\\MessageQueueService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAQAAAAeAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\WriteService\\Program.cs",
+              "RelativeDocumentMoniker": "WriteService\\Program.cs",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\WriteService\\Program.cs",
+              "RelativeToolTip": "WriteService\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-14T16:59:21.754Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-16T01:13:15.239Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ReadController.cs",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Controllers\\ReadController.cs",
+              "RelativeDocumentMoniker": "ReadService\\Controllers\\ReadController.cs",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Controllers\\ReadController.cs",
+              "RelativeToolTip": "ReadService\\Controllers\\ReadController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-16T00:56:23.706Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 8,
               "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\appsettings.json",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\appsettings.json",
               "RelativeDocumentMoniker": "ReadService\\appsettings.json",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\appsettings.json",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\appsettings.json",
               "RelativeToolTip": "ReadService\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-06-14T13:58:35.504Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Dockerfile",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Dockerfile",
-              "RelativeDocumentMoniker": "WriteService\\Dockerfile",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Dockerfile",
-              "RelativeToolTip": "WriteService\\Dockerfile",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAABUAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-06-14T13:26:24.543Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "WriteService",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\WriteService.csproj",
-              "RelativeDocumentMoniker": "WriteService\\WriteService.csproj",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\WriteService.csproj",
-              "RelativeToolTip": "WriteService\\WriteService.csproj",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-06-14T13:19:09.819Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Post.cs",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Models\\Post.cs",
-              "RelativeDocumentMoniker": "WriteService\\Models\\Post.cs",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Models\\Post.cs",
-              "RelativeToolTip": "WriteService\\Models\\Post.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-14T13:17:10.78Z"
+              "WhenOpened": "2025-06-16T00:56:13.577Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "docker-compose.yml",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\docker-compose.yml",
-              "RelativeDocumentMoniker": "docker-compose.yml",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\docker-compose.yml",
-              "RelativeToolTip": "docker-compose.yml",
-              "ViewState": "AgIAAHMAAAAAAAAAAAAYwHoAAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
-              "WhenOpened": "2025-06-14T12:54:18.56Z",
+              "Title": "KafkaReadService.cs",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Services\\KafkaReadService.cs",
+              "RelativeDocumentMoniker": "ReadService\\Services\\KafkaReadService.cs",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Services\\KafkaReadService.cs",
+              "RelativeToolTip": "ReadService\\Services\\KafkaReadService.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAcwCAAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-16T00:55:42.545Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Dockerfile",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Dockerfile",
-              "RelativeDocumentMoniker": "ReadService\\Dockerfile",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Dockerfile",
-              "RelativeToolTip": "ReadService\\Dockerfile",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAqwAkAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-06-14T12:39:42.744Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "WriteController.cs",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Controllers\\WriteController.cs",
-              "RelativeDocumentMoniker": "WriteService\\Controllers\\WriteController.cs",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Controllers\\WriteController.cs",
-              "RelativeToolTip": "WriteService\\Controllers\\WriteController.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAmwCMAAABHAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-14T12:12:57.69Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "KafkaWriteService.cs",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Services\\KafkaWriteService.cs",
-              "RelativeDocumentMoniker": "WriteService\\Services\\KafkaWriteService.cs",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Services\\KafkaWriteService.cs",
-              "RelativeToolTip": "WriteService\\Services\\KafkaWriteService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-14T12:12:26.802Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Program.cs",
-              "RelativeDocumentMoniker": "ReadService\\Program.cs",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Program.cs",
-              "RelativeToolTip": "ReadService\\Program.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAmwBgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-11T19:02:14.808Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "ReadController.cs",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Controllers\\ReadController.cs",
-              "RelativeDocumentMoniker": "ReadService\\Controllers\\ReadController.cs",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Controllers\\ReadController.cs",
-              "RelativeToolTip": "ReadService\\Controllers\\ReadController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBUAAAAwAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Program.cs",
+              "RelativeDocumentMoniker": "ReadService\\Program.cs",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Program.cs",
+              "RelativeToolTip": "ReadService\\Program.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-11T19:00:50.478Z"
+              "WhenOpened": "2025-06-16T00:49:42.645Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\docker-compose.yml",
+              "RelativeDocumentMoniker": "docker-compose.yml",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\docker-compose.yml",
+              "RelativeToolTip": "docker-compose.yml",
+              "ViewState": "AgIAAGAAAAAAAAAAAAAAwHoAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2025-06-16T00:44:09.975Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MessageQueueService.cs",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Services\\MessageQueueService.cs",
+              "RelativeDocumentMoniker": "ReadService\\Services\\MessageQueueService.cs",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Services\\MessageQueueService.cs",
+              "RelativeToolTip": "ReadService\\Services\\MessageQueueService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T16:59:21.754Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\WriteService\\Dockerfile",
+              "RelativeDocumentMoniker": "WriteService\\Dockerfile",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\WriteService\\Dockerfile",
+              "RelativeToolTip": "WriteService\\Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-06-14T13:26:24.543Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "KafkaReadService.cs",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Services\\KafkaReadService.cs",
-              "RelativeDocumentMoniker": "ReadService\\Services\\KafkaReadService.cs",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\ReadService\\Services\\KafkaReadService.cs",
-              "RelativeToolTip": "ReadService\\Services\\KafkaReadService.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAmwDUAAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-11T19:00:26.639Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Program.cs",
-              "RelativeDocumentMoniker": "WriteService\\Program.cs",
-              "ToolTip": "C:\\Users\\pc\\source\\repos\\PostMicroServiceApplication\\WriteService\\Program.cs",
-              "RelativeToolTip": "WriteService\\Program.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAQwBYAAAA/AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-22T22:41:00.789Z"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Dockerfile",
+              "RelativeDocumentMoniker": "ReadService\\Dockerfile",
+              "ToolTip": "C:\\Users\\pc\\Desktop\\Arksoft\\arkSoft_Realtime_System_Architecture\\PostMicroServiceApplication\\ReadService\\Dockerfile",
+              "RelativeToolTip": "ReadService\\Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-06-14T12:39:42.744Z"
             }
           ]
         }
