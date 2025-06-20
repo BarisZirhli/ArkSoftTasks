@@ -20,7 +20,7 @@ namespace WriteService
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(connectionString));
             builder.Services.AddScoped<KafkaWriteService>();
-            builder.Services.AddSingleton<KafkaWriteService>();
+         
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.DependencyInjection;
 using ReadService.Data;
 using ReadService.Services;
 
@@ -18,11 +18,8 @@ namespace ReadService
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            // Tek ve doðru kayýt þekli:
-
+            builder.Services.AddSingleton<IHostedService, KafkaReadService>();
             builder.Services.AddSingleton<IMessageQueueService, MessageQueueService>();
-            builder.Services.AddHostedService<KafkaReadService>();
-
 
 
             builder.Services.AddCors(options =>
@@ -54,4 +51,5 @@ namespace ReadService
             app.Run();
         }
     }
+
 }
